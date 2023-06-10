@@ -14,6 +14,8 @@ namespace SimulacaoGrafica
         public Color Color { get; set; }
         public float DistanceFromCenter { get; set; }
         public float Angle { get; set; }
+        public bool Radiation { get; set; }
+        public float RadiationIntensity { get; set; }
     }
 
     public class SimulationForm : Form
@@ -44,7 +46,7 @@ namespace SimulacaoGrafica
             CenterSimulation();
 
             // Define o tamanho da janela inicialmente como 1024x768
-            ClientSize = new Size(2024, 768);
+            ClientSize = new Size(1024, 768);
         }
 
         private void GenerateBalls()
@@ -57,7 +59,8 @@ namespace SimulacaoGrafica
                 Mass = 1000,
                 Color = Color.Red,
                 DistanceFromCenter = 200, // Distância das bolas menores em relação à bola maior
-                Angle = 0 // Ângulo inicial das bolas menores
+                Angle = 0, // Ângulo inicial das bolas menores
+                RadiationIntensity = 0.5f, // Defina a intensidade de radiação desejada
             };
 
             balls.Add(superMassiveBall);
@@ -180,6 +183,12 @@ namespace SimulacaoGrafica
                 // Aplicar uma leve desaceleração para simular a falta de gravidade
                 ball.Velocity = new PointF(ball.Velocity.X * 0.99f, ball.Velocity.Y * 0.99f);
 
+                // Aplicar radiação
+                if (ball.Radiation)
+                {
+                    ApplyRadiation(ball);
+                }
+
                 // Verificar colisões com outras bolas
                 for (int j = i + 1; j < balls.Count; j++)
                 {
@@ -200,6 +209,12 @@ namespace SimulacaoGrafica
                     ball.Angle += 0.05f; // Velocidade de rotação das bolas menores
                 }
             }
+        }
+
+        private void ApplyRadiation(Ball ball)
+        {
+            float radiationAcceleration = 0.1f; // Ajuste o valor para controlar a influência da radiação
+            ball.Velocity = new PointF(ball.Velocity.X + ball.RadiationIntensity * radiationAcceleration, ball.Velocity.Y + ball.RadiationIntensity * radiationAcceleration);
         }
 
         private bool CheckCollision(Ball ball1, Ball ball2)
